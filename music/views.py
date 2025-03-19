@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 
 from users.models import Artist
-from .models import Genre, Album, Song, Playlist, Like, Collaboration, PlaylistSong, ListeningHistory
-from .serializers import GenreSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, LikeSerializer, CollaborationSerializer, PlaylistSongSerializer, ListeningHistorySerializer
+from .models import Genre, Album, Song, Playlist, Like, ListeningHistory
+from .serializers import GenreSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, LikeSerializer, ListeningHistorySerializer
 
 
 # 🎼 Album API
@@ -40,6 +40,7 @@ class ArtistSongsView(APIView):
         songs = Song.objects.filter(artist=artist)
         serializer = SongSerializer(songs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 # 🎵 Genre API
 class GenreListCreateView(generics.ListCreateAPIView):
     queryset = Genre.objects.all()
@@ -75,27 +76,6 @@ class LikeListCreateView(generics.ListCreateAPIView):
 class LikeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
-
-# Collaboration API
-class CollaborationListCreateView(generics.ListCreateAPIView):
-    queryset = Collaboration.objects.all()
-    serializer_class = CollaborationSerializer
-
-
-class CollaborationDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Collaboration.objects.all()
-    serializer_class = CollaborationSerializer
-
-
-# PlaylistSong API
-class PlaylistSongListCreateView(generics.ListCreateAPIView):
-    queryset = PlaylistSong.objects.all()
-    serializer_class = PlaylistSongSerializer
-
-class PlaylistSongDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = PlaylistSong.objects.all()
-    serializer_class = PlaylistSongSerializer
-
 
 # ListeningHistory API
 class ListeningHistoryListCreateView(generics.ListCreateAPIView):

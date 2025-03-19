@@ -20,8 +20,8 @@ class Song(models.Model):
     title = models.CharField(max_length=255)
     album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)
-    duration = models.IntegerField()
+    collaborators = models.ManyToManyField(Artist, related_name="collaborations", blank=True)  # Các nghệ sĩ hợp tác
+    genre = models.ManyToManyField(Genre)
     file_url = models.FileField(upload_to='songs/', null=True, blank=True)
     cover_image = models.ImageField(upload_to='songs/covers/', null=True, blank=True)
     is_premium = models.BooleanField(default=False)
@@ -29,21 +29,14 @@ class Song(models.Model):
     def __str__(self):
         return self.title
 
-class Collaboration(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-
 class Playlist(models.Model):
     name = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cover_image = models.ImageField(upload_to='playlist/', null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
+    songs = models.ManyToManyField(Song)  # Dùng trực tiếp ManyToManyField
     def __str__(self):
         return self.name
-
-class PlaylistSong(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
-    added_at = models.DateTimeField(auto_now_add=True)
 
 class ListeningHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

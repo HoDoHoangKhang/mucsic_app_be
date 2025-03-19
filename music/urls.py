@@ -22,12 +22,6 @@ urlpatterns = [
     path('likes/', LikeListCreateView.as_view(), name='like-list'),
     path('likes/<int:pk>/', LikeDetailView.as_view(), name='like-detail'),
 
-    path('collaborations/', CollaborationListCreateView.as_view(), name='collaboration-list-create'),
-    path('collaborations/<int:pk>/', CollaborationDetailView.as_view(), name='collaboration-detail'),
-
-    path('playlist-songs/', PlaylistSongListCreateView.as_view(), name='playlist-song-list-create'),
-    path('playlist-songs/<int:pk>/', PlaylistSongDetailView.as_view(), name='playlist-song-detail'),
-
     path('listening-history/', ListeningHistoryListCreateView.as_view(), name='listening-history-list-create'),
     path('listening-history/<int:pk>/', ListeningHistoryDetailView.as_view(), name='listening-history-detail'),
 ]
