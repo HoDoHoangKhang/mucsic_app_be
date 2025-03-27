@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from users.models import Artist
 from .models import Genre, Album, Song, Playlist, Like, ListeningHistory
 from .serializers import GenreSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, LikeSerializer, ListeningHistorySerializer
 
@@ -26,18 +25,6 @@ class AlbumSongsView(APIView):
             return Response({"error": "Album not found"}, status=status.HTTP_404_NOT_FOUND)
 
         songs = Song.objects.filter(album=album)
-        serializer = SongSerializer(songs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-#Lấy ra danh sách các bài hát của 1 nghệ sĩ
-class ArtistSongsView(APIView):
-    def get(self, request, pk):
-        try:
-            artist = Artist.objects.get(pk=pk)
-        except Artist.DoesNotExist:
-            return Response({"error": "Artist not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        songs = Song.objects.filter(artist=artist)
         serializer = SongSerializer(songs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

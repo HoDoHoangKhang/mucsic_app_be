@@ -18,6 +18,7 @@ class Artist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
     social_links = models.JSONField(blank=True, null=True)
+    backdrop_img= models.ImageField(upload_to='backdrop/', null=True, blank=True)
     def __str__(self):
         return self.user.last_name if self.user.last_name else self.user.username
 
