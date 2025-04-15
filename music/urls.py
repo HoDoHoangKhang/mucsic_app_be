@@ -8,8 +8,6 @@ urlpatterns = [
     ######## ALBUMS #######
     path('albums/', AlbumListCreateView.as_view(), name='album-list'),
     path('albums/<int:pk>/', AlbumDetailView.as_view(), name='album-detail'),
-    # Lấy ra danh sách bài hát của album
-    path("albums/<int:pk>/songs/", AlbumSongsView.as_view(), name="album-songs"),
 
     path('songs/', SongListCreateView.as_view(), name='song-list'),
     path('songs/<int:pk>/', SongDetailView.as_view(), name='song-detail'),

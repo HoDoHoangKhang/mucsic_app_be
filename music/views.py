@@ -12,24 +12,25 @@ from rest_framework.permissions import IsAuthenticated
 # 🎼 Album API
 # CRUD Albums
 class AlbumListCreateView(generics.ListCreateAPIView):
-    queryset = Album.objects.all()
+    queryset = Album.objects.filter(is_deleted=False)
     serializer_class = AlbumSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['artist'] #Lọc theo id artist
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        artist_id = self.request.query_params.get('artist', None)
+        if artist_id:
+            queryset = queryset.filter(artist_id=artist_id)
+        return queryset
 
 class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Album.objects.all()
+    queryset = Album.objects.filter(is_deleted=False)
     serializer_class = AlbumSerializer
 
-# Lấy ra danh sách bài hát của album
-class AlbumSongsView(APIView):
-    def get(self, request, pk):
-        try:
-            album = Album.objects.get(pk=pk)
-        except Album.DoesNotExist:
-            return Response({"error": "Album not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        songs = Song.objects.filter(album=album)
-        serializer = SongSerializer(songs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # Xóa mềm
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
 
 # 🎵 Genre API
 class GenreListCreateView(generics.ListCreateAPIView):

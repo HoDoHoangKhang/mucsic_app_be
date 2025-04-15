@@ -53,30 +53,6 @@ class ArtistDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
 
-#Lấy ra danh sách các bài hát của 1 nghệ sĩ
-class ArtistSongsView(APIView):
-    def get(self, request, pk):
-        try:
-            artist = Artist.objects.get(pk=pk)
-        except Artist.DoesNotExist:
-            return Response({"error": "Artist not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        songs = Song.objects.filter(artist=artist)
-        serializer = SongSerializer(songs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-#Lấy ra danh sách các album của 1 nghệ sĩ
-class ArtistAlbumsView(APIView):
-    def get(self, request, pk):
-        try:
-            artist = Artist.objects.get(pk=pk)
-        except Artist.DoesNotExist:
-            return Response({"error": "Artist not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        albums = Album.objects.filter(artist=artist)
-        serializer = AlbumSerializer(albums, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 # API Follower
 class FollowerListCreateView(generics.ListCreateAPIView):
     queryset = Follower.objects.all()
@@ -85,6 +61,7 @@ class FollowerListCreateView(generics.ListCreateAPIView):
 class FollowerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Follower.objects.all()
     serializer_class = FollowerSerializer
+    
 # Kiểm tra trạng thái follow
 class ArtistFollowStatusView(APIView):
     permission_classes = [IsAuthenticated]
