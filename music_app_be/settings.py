@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,6 +54,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=300),  # Token có hiệu lực trong 30 ngày
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),  # Refresh token có hiệu lực trong 90 ngày
+    'ROTATE_REFRESH_TOKENS': False,  # Không tạo refresh token mới khi refresh
+    'BLACKLIST_AFTER_ROTATION': False,  # Không đưa token cũ vào blacklist
 }
 
 MIDDLEWARE = [
