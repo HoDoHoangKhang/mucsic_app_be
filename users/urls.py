@@ -17,5 +17,7 @@ urlpatterns = [
     # Thêm 2 API mới
     path('artists/<int:pk>/follow-status/', ArtistFollowStatusView.as_view(), name='artist-follow-status'),
     path('artists/<int:pk>/follow-toggle/', ArtistFollowToggleView.as_view(), name='artist-follow-toggle'),
+    # API lấy danh sách nghệ sĩ đã follow
+    path('following-artists/', UserFollowingArtistsView.as_view(), name='user-following-artists'),
 
 ]

@@ -81,22 +81,6 @@ class PlaylistDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
 
-# Lấy ra toàn bộ danh sách playlist của user
-class UserPlaylistView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        playlists = Playlist.objects.filter(user=request.user)
-        serializer = PlaylistSerializer(playlists, many=True)
-        return Response(serializer.data)
-
-# Lấy ra 1 playlist của user
-class UserPlaylistDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        playlist = get_object_or_404(Playlist, pk=pk, user=request.user)
-        serializer = PlaylistSerializer(playlist)
-        return Response(serializer.data)
 
 # ❤️ Like API
 class LikeListCreateView(generics.ListCreateAPIView):
@@ -226,3 +210,114 @@ class ListeningHistoryListCreateView(generics.ListCreateAPIView):
 class ListeningHistoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ListeningHistory.objects.all()
     serializer_class = ListeningHistorySerializer
+
+# API để thêm/xóa bài hát vào playlist
+class PlaylistSongAddRemoveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, playlist_id, song_id):
+        try:
+            playlist = Playlist.objects.get(id=playlist_id, user=request.user, is_deleted=False)
+            song = Song.objects.get(id=song_id, is_deleted=False)
+            
+            # Kiểm tra xem bài hát đã có trong playlist chưa
+            if song in playlist.songs.all():
+                return Response({
+                    "status": "error",
+                    "message": "Song already exists in playlist"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            playlist.songs.add(song)
+            return Response({
+                "status": "success",
+                "message": "Song added to playlist successfully"
+            })
+            
+        except Playlist.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Playlist not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Song.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Song not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, playlist_id, song_id):
+        try:
+            playlist = Playlist.objects.get(id=playlist_id, user=request.user, is_deleted=False)
+            song = Song.objects.get(id=song_id, is_deleted=False)
+            
+            if song not in playlist.songs.all():
+                return Response({
+                    "status": "error",
+                    "message": "Song not found in playlist"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            playlist.songs.remove(song)
+            return Response({
+                "status": "success",
+                "message": "Song removed from playlist successfully"
+            })
+            
+        except Playlist.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Playlist not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Song.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Song not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+# API để lấy danh sách playlist của một user
+class UserPlaylistListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PlaylistSerializer
+    
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Playlist.objects.filter(user_id=user_id, is_deleted=False)
+
+# API để lấy danh sách bài hát trong một playlist
+class PlaylistSongsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SongSerializer
+    
+    def get_queryset(self):
+        playlist_id = self.kwargs.get('playlist_id')
+        playlist = get_object_or_404(Playlist, id=playlist_id, is_deleted=False)
+        return playlist.songs.filter(is_deleted=False)
+
+# API để tìm kiếm playlist
+class PlaylistSearchView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PlaylistSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+    
+    def get_queryset(self):
+        return Playlist.objects.filter(is_deleted=False)
+
+# API để lấy danh sách playlist và bài hát của user đang đăng nhập
+class UserCurrentPlaylistsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PlaylistSerializer
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Playlist.objects.filter(user=user, is_deleted=False)
+
+# API để lấy danh sách album đã like
+class LikedAlbumsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AlbumSerializer
+    
+    def get_queryset(self):
+        user = self.request.user
+        # Lấy danh sách album_id từ bảng Like
+        liked_album_ids = Like.objects.filter(user=user, album__isnull=False).values_list('album_id', flat=True)
+        # Lấy danh sách album dựa trên các id đã like
+        return Album.objects.filter(id__in=liked_album_ids, is_deleted=False)

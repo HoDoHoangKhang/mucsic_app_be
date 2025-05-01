@@ -45,7 +45,8 @@ class SongSerializer(serializers.ModelSerializer):
         return None
 
 class PlaylistSerializer(serializers.ModelSerializer):
-    songs = SongSerializer(many=True)  # Trả về toàn bộ object Album
+    songs = SongSerializer(many=True, read_only=True)  # Trả về toàn bộ object Song
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Playlist
         fields = '__all__'

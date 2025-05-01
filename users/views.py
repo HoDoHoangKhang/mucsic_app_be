@@ -101,3 +101,22 @@ class ArtistFollowToggleView(APIView):
             return Response({"message": "Unfollowed", "isFollowing": False}, status=status.HTTP_200_OK)
 
         return Response({"message": "Followed", "isFollowing": True}, status=status.HTTP_201_CREATED)
+
+# Lấy danh sách nghệ sĩ đã follow
+class UserFollowingArtistsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Lấy danh sách các user mà người dùng hiện tại đang follow
+        following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
+        
+        # Lấy danh sách các nghệ sĩ tương ứng với các user đó
+        following_artists = Artist.objects.filter(user__in=following_users)
+        
+        # Serialize dữ liệu
+        serializer = ArtistSerializer(following_artists, many=True)
+        
+        return Response({
+            "following_artists": serializer.data,
+            "total": len(serializer.data)
+        }, status=status.HTTP_200_OK)
