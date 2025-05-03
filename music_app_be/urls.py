@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path("api/login/", LoginView.as_view(), name="login"),
     path('api/payments/', include('payments.urls')),
+    path('api/community/', include('community.urls')),
     
     # reset token
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
